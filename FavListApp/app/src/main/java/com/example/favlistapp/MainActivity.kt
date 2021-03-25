@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,20 +51,29 @@ fun hostComposable() {
 
 @Composable
 fun ContactDetails(navController: NavController?, userId: String?) {
-    TopAppBar {
-        Text(text = "Contact $userId",
-            textAlign = TextAlign.Center)
-    }
+    TopAppBar(
+        title = {
+            Text(text = testList.value[userId?.toInt() ?: 0].name,
+                textAlign = TextAlign.Center,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            )
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
     Box(modifier = Modifier
         .fillMaxWidth()
         .fillMaxHeight(),
         contentAlignment = Alignment.Center) {
         Button(onClick = {
+            userId?.toInt()?.let {
+                testList.value[it].timestamp = System.currentTimeMillis()
+            }
             navController?.navigate("home") {
                 launchSingleTop = true
             }
         }) {
-            Text(text = "Update conversation timestamp for Contact $userId")
+            Text(text = "Update conversation timestamp for ${testList.value[userId?.toInt() ?: 0].name}")
         }
     }
 }
@@ -71,12 +81,20 @@ fun ContactDetails(navController: NavController?, userId: String?) {
 
 @Composable
 fun ContactList(navController: NavController?) {
-    ClickableText(modifier = Modifier.padding(vertical = 5.dp),
-        style = TextStyle(fontSize = 36.sp),
-        text = AnnotatedString(testList[0].name),
-        onClick = { offset ->
-            navController?.navigate("contact/${testList[0].id}")
-        })
+    testList.value.sortedBy { it.timestamp }
+    LazyColumn(modifier = Modifier
+        .fillMaxHeight()
+        .fillMaxWidth()) {
+        items(testList.value.size) { index ->
+            ClickableText(modifier = Modifier.padding(vertical = 5.dp),
+                style = TextStyle(fontSize = 36.sp),
+                text = AnnotatedString(testList.value[index].name),
+                onClick = { offset ->
+                    navController?.navigate("contact/${testList.value[index].id}")
+                })
+            Divider(color = Color.Black)
+        }
+    }
 }
 
 @Preview(showBackground = true)

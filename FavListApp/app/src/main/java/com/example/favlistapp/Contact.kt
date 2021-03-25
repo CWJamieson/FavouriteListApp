@@ -1,11 +1,13 @@
 package com.example.favlistapp
 
+import androidx.compose.runtime.mutableStateOf
+
 data class Contact(val id: Int,
                    val name: String,
-                   val timestamp: Long)
+                   var timestamp: Long)
 
 
-val testList = listOf(
+val testList = mutableStateOf(listOf(
     Contact(0, "Amber", 0L),
     Contact(1, "Andrii", 1L),
     Contact(2, "Carter", 2L),
@@ -16,4 +18,4 @@ val testList = listOf(
     Contact(7, "Shawn", 7L),
     Contact(8, "Thiago", 8L),
     Contact(9, "Tyler", 9L)
-)
+))
