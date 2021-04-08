@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.example.favlistapp.ui.theme.FavListAppTheme
+import kotlinx.coroutines.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,19 +46,34 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun hostComposable() {
     val navController = rememberNavController()
-    val contactModel = remember { mutableStateOf(ContactModel().contacts) }
+    val contactModel = remember { ContactModel() }
+    val contacts = contactModel.contacts
+    val isLoading = contactModel.isLoading
+    if (isLoading.value) {
+        SpinnerComposable()
+    }
     NavHost(navController, startDestination = "home") {
-        composable("home") { ContactList(navController, contactModel) }
+        composable("home") { ContactList(navController, contacts) }
         composable("contact/{userId}") { backStackEntry ->
-            ContactDetails(navController, backStackEntry.arguments?.getString("userId"), contactModel) }
+            ContactDetails(navController, backStackEntry.arguments?.getString("userId"), contacts) }
     }
 }
 
 @Composable
-fun ContactDetails(navController: NavController?, userId: String?, contactModel: MutableState<MutableList<Contact>>) {
+fun SpinnerComposable() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize() ){
+        CircularProgressIndicator()
+    }
+}
+
+
+@Composable
+fun ContactDetails(navController: NavController?, userId: String?, contacts: MutableState<MutableList<Contact>>) {
     TopAppBar(
         title = {
-            Text(text = contactModel.value[userId?.toInt() ?: 0].name,
+            Text(text = contacts.value[userId?.toInt() ?: 0].name,
                 textAlign = TextAlign.Center,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -73,24 +89,24 @@ fun ContactDetails(navController: NavController?, userId: String?, contactModel:
         ) {
         Button(onClick = {
             userId?.toInt()?.let {
-                contactModel.value[it].timestamp = System.currentTimeMillis()
+                contacts.value[it].timestamp = System.currentTimeMillis()
             }
             navController?.navigate("home") {
                 launchSingleTop = true
             }
         }) {
-            Text(text = "Update conversation timestamp for ${contactModel.value[userId?.toInt() ?: 0].name}")
+            Text(text = "Update conversation timestamp for ${contacts.value[userId?.toInt() ?: 0].name}")
         }
 
         Button(onClick = {
             userId?.toInt()?.let {
-                contactModel.value[it].isFav = !contactModel.value[it].isFav
+                contacts.value[it].isFav = !contacts.value[it].isFav
             }
             navController?.navigate("home") {
                 launchSingleTop = true
             }
         }) {
-            Text(text = "Toggle fav ${contactModel.value[userId?.toInt() ?: 0].name}")
+            Text(text = "Toggle fav ${contacts.value[userId?.toInt() ?: 0].name}")
         }
     }
 }

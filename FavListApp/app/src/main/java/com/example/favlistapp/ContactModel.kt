@@ -5,28 +5,20 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 
 class ContactModel: ViewModel() {
-    val contacts = mutableListOf<Contact>().apply { addAll(testList) }
+    val contacts = mutableStateOf(mutableListOf<Contact>())
+    val isLoading = mutableStateOf(false)
 
     init {
         loadData()
     }
 
     fun loadData() {
+        isLoading.value = true
         CoroutineScope(Dispatchers.IO).launch {
-            delay(1)
+            delay(2000)
             withContext(Dispatchers.Main) {
-                contacts.addAll(testList)
-            }
-        }
-    }
-
-    fun updateContact(id: Int, timestamp: Long? = null, isFav: Boolean? = null) {
-        contacts.firstOrNull { id == it.id }?.let { contact ->
-            timestamp?.let {
-                contact.timestamp = it
-            }
-            isFav?.let {
-                contact.isFav = it
+                contacts.value = testList.toMutableList()
+                isLoading.value = false
             }
         }
     }
