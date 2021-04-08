@@ -1,13 +1,11 @@
 package com.example.favlistapp
 
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.*
 
-class ContactModel {
-    val contacts = mutableStateOf(mutableListOf<Contact>())
+class ContactModel: ViewModel() {
+    val contacts = mutableListOf<Contact>().apply { addAll(testList) }
 
     init {
         loadData()
@@ -15,8 +13,21 @@ class ContactModel {
 
     fun loadData() {
         CoroutineScope(Dispatchers.IO).launch {
-            delay(2000)
-            contacts.value.addAll(testList)
+            delay(1)
+            withContext(Dispatchers.Main) {
+                contacts.addAll(testList)
+            }
+        }
+    }
+
+    fun updateContact(id: Int, timestamp: Long? = null, isFav: Boolean? = null) {
+        contacts.firstOrNull { id == it.id }?.let { contact ->
+            timestamp?.let {
+                contact.timestamp = it
+            }
+            isFav?.let {
+                contact.isFav = it
+            }
         }
     }
 }
