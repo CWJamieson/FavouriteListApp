@@ -42,18 +42,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun hostComposable() {
     val navController = rememberNavController()
+    val contactModel = ContactModel()
     NavHost(navController, startDestination = "home") {
-        composable("home") { ContactList(navController) }
+        composable("home") { ContactList(navController, contactModel) }
         composable("contact/{userId}") { backStackEntry ->
-            ContactDetails(navController, backStackEntry.arguments?.getString("userId")) }
+            ContactDetails(navController, backStackEntry.arguments?.getString("userId"), contactModel) }
     }
 }
 
 @Composable
-fun ContactDetails(navController: NavController?, userId: String?) {
+fun ContactDetails(navController: NavController?, userId: String?, contactModel: ContactModel) {
     TopAppBar(
         title = {
-            Text(text = testList.value[userId?.toInt() ?: 0].name,
+            Text(text = contactModel.contacts.value[userId?.toInt() ?: 0].name,
                 textAlign = TextAlign.Center,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -67,30 +68,30 @@ fun ContactDetails(navController: NavController?, userId: String?) {
         contentAlignment = Alignment.Center) {
         Button(onClick = {
             userId?.toInt()?.let {
-                testList.value[it].timestamp = System.currentTimeMillis()
+                contactModel.contacts.value[it].timestamp = System.currentTimeMillis()
             }
             navController?.navigate("home") {
                 launchSingleTop = true
             }
         }) {
-            Text(text = "Update conversation timestamp for ${testList.value[userId?.toInt() ?: 0].name}")
+            Text(text = "Update conversation timestamp for ${contactModel.contacts.value[userId?.toInt() ?: 0].name}")
         }
     }
 }
 
 
 @Composable
-fun ContactList(navController: NavController?) {
-    testList.value.sortedBy { it.timestamp }
+fun ContactList(navController: NavController?, contactModel: ContactModel) {
+    contactModel.contacts.value.sortedBy { it.timestamp }
     LazyColumn(modifier = Modifier
         .fillMaxHeight()
         .fillMaxWidth()) {
-        items(testList.value.size) { index ->
+        items(contactModel.contacts.value.size) { index ->
             ClickableText(modifier = Modifier.padding(vertical = 5.dp),
                 style = TextStyle(fontSize = 36.sp),
-                text = AnnotatedString(testList.value[index].name),
+                text = AnnotatedString(contactModel.contacts.value[index].name),
                 onClick = { offset ->
-                    navController?.navigate("contact/${testList.value[index].id}")
+                    navController?.navigate("contact/${contactModel.contacts.value[index].id}")
                 })
             Divider(color = Color.Black)
         }
@@ -101,7 +102,7 @@ fun ContactList(navController: NavController?) {
 @Composable
 fun HomePreview() {
     FavListAppTheme {
-        ContactList(null)
+        ContactList(null, ContactModel())
     }
 }
 
@@ -109,6 +110,6 @@ fun HomePreview() {
 @Composable
 fun ContactPreview() {
     FavListAppTheme {
-        ContactDetails(null, "TestContact")
+        ContactDetails(null, "TestContact", ContactModel())
     }
 }

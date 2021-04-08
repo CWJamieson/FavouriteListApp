@@ -7,7 +7,7 @@ data class Contact(val id: Int,
                    var timestamp: Long)
 
 
-val testList = mutableStateOf(listOf(
+val testList = listOf(
     Contact(0, "Amber", 0L),
     Contact(1, "Andrii", 1L),
     Contact(2, "Carter", 2L),
@@ -18,4 +18,4 @@ val testList = mutableStateOf(listOf(
     Contact(7, "Shawn", 7L),
     Contact(8, "Thiago", 8L),
     Contact(9, "Tyler", 9L)
-))
+)
