@@ -1,8 +1,11 @@
 package com.example.favlistapp
 
+import androidx.compose.runtime.mutableStateOf
+
 data class Contact(val id: Int,
                    val name: String,
-                   val timestamp: Long)
+                   var timestamp: Long,
+                   var isFav: Boolean = false)
 
 
 val testList = listOf(
