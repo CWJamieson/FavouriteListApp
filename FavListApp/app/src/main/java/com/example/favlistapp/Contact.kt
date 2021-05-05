@@ -1,11 +1,14 @@
 package com.example.favlistapp
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-data class Contact(val id: Int,
-                   val name: String,
-                   var timestamp: Long,
-                   var isFav: Boolean = false)
+@Entity
+data class Contact(@PrimaryKey val id: Int,
+                   @ColumnInfo val name: String,
+                   @ColumnInfo var timestamp: Long,
+                   @ColumnInfo var isFav: Boolean = false)
 
 
 val testList = listOf(

@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +47,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun hostComposable() {
     val navController = rememberNavController()
-    val contactModel = remember { ContactModel() }
+    val context = LocalContext.current
+    val contactModel = remember { ContactModel().apply { loadData(context) } }
     val contacts = contactModel.contacts
     val isLoading = contactModel.isLoading
     if (isLoading.value) {
@@ -55,7 +57,7 @@ fun hostComposable() {
     NavHost(navController, startDestination = "home") {
         composable("home") { ContactList(navController, contacts) }
         composable("contact/{userId}") { backStackEntry ->
-            ContactDetails(navController, backStackEntry.arguments?.getString("userId"), contacts) }
+            ContactDetails(navController, backStackEntry.arguments?.getString("userId"), contactModel) }
     }
 }
 
@@ -70,7 +72,9 @@ fun SpinnerComposable() {
 
 
 @Composable
-fun ContactDetails(navController: NavController?, userId: String?, contacts: MutableState<MutableList<Contact>>) {
+fun ContactDetails(navController: NavController?, userId: String?, contactModel: ContactModel) {
+    val contacts = contactModel.contacts
+    val context = LocalContext.current
     TopAppBar(
         title = {
             Text(text = contacts.value[userId?.toInt() ?: 0].name,
@@ -91,6 +95,7 @@ fun ContactDetails(navController: NavController?, userId: String?, contacts: Mut
             userId?.toInt()?.let {
                 contacts.value[it].timestamp = System.currentTimeMillis()
             }
+            contactModel.saveData(context = context)
             navController?.navigate("home") {
                 launchSingleTop = true
             }
@@ -102,6 +107,7 @@ fun ContactDetails(navController: NavController?, userId: String?, contacts: Mut
             userId?.toInt()?.let {
                 contacts.value[it].isFav = !contacts.value[it].isFav
             }
+            contactModel.saveData(context = context)
             navController?.navigate("home") {
                 launchSingleTop = true
             }
@@ -153,7 +159,10 @@ fun HomePreview() {
 @Preview(showBackground = true)
 @Composable
 fun ContactPreview() {
+    val model = ContactModel().apply {
+        contacts.value = testList.toMutableList()
+    }
     FavListAppTheme {
-        ContactDetails(null, "TestContact", mutableStateOf(testList.toMutableList()))
+        ContactDetails(null, "0", model)
     }
 }
