@@ -28,7 +28,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.example.favlistapp.ui.theme.FavListAppTheme
-import kotlinx.coroutines.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +94,7 @@ fun ContactDetails(navController: NavController?, userId: String?, contactModel:
             userId?.toInt()?.let {
                 contacts.value[it].timestamp = System.currentTimeMillis()
             }
-            contactModel.saveData(context = context)
+            contactModel.updateData(context = context)
             navController?.navigate("home") {
                 launchSingleTop = true
             }
@@ -107,7 +106,7 @@ fun ContactDetails(navController: NavController?, userId: String?, contactModel:
             userId?.toInt()?.let {
                 contacts.value[it].isFav = !contacts.value[it].isFav
             }
-            contactModel.saveData(context = context)
+            contactModel.updateData(context = context)
             navController?.navigate("home") {
                 launchSingleTop = true
             }
@@ -137,13 +136,13 @@ fun ContactList(navController: NavController?, contacts: MutableState<MutableLis
                 ClickableText(modifier = Modifier
                     .padding(vertical = 5.dp)
                     .fillMaxWidth(),
-                    style = TextStyle(fontSize = 36.sp),
+                    style = TextStyle(fontSize = 36.sp, color = MaterialTheme.colors.primary),
                     text = AnnotatedString(contacts.value[index].name),
                     onClick = { offset ->
                         navController?.navigate("contact/$index")
                     })
             }
-            Divider(color = Color.Black)
+            Divider(color = MaterialTheme.colors.primary)
         }
     }
 }

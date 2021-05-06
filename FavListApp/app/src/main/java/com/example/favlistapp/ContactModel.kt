@@ -11,14 +11,14 @@ class ContactModel(): ViewModel() {
     val isLoading = mutableStateOf(false)
 
 
-    fun saveData(context: Context) {
+    fun updateData(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             val db = Room.databaseBuilder(
                 context,
                 AppDatabase::class.java, "contact"
             ).build()
             val userDao = db.contactDao()
-            userDao.insertAll(*contacts.value.toTypedArray())
+            userDao.updateAll(*contacts.value.toTypedArray())
         }
     }
 
@@ -35,6 +35,7 @@ class ContactModel(): ViewModel() {
             // There is no saved contacts, load the default list
             if (users.isEmpty()) {
                 users = testList
+                userDao.insertAll(*users.toTypedArray())
             }
             withContext(Dispatchers.Main) {
                 contacts.value = users.toMutableList()
